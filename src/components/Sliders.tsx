@@ -54,6 +54,7 @@ export function DoubleSlider({increments, startPos1, startPos2, onUpdate}: {incr
           max={increments}
           step={1}
           minStepsBetweenThumbs={1}
+          
         >
             <Track />
             <Thumb />
