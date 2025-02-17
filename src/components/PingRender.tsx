@@ -5,17 +5,26 @@ import { ClipLoader } from "react-spinners";
 function PingRender() {
     const [isPinging, setIsPinging] = useState(false);
 
-    async function init() {
-        setIsPinging(true);
-
-        const ping = await fetch("https://forecast-unemployment.onrender.com/api/ping", {method: "GET"});
+    async function pingServer() {
+        const ping = await fetch("https://forecast-unemployment.onrender.com/api/ping", { method: "GET" });
 
         if (!ping.ok) {
             setIsPinging(false);
             return;
         }
 
-        setIsPinging(false)
+        setIsPinging(false);
+    }
+
+    function init() {
+        setIsPinging(true);
+        pingServer(); // Initial ping
+
+        const intervalId = setInterval(() => {
+            pingServer();
+        }, 60000); // Ping every minute
+
+        return () => clearInterval(intervalId);
     }
 
     useEffect(() => {
