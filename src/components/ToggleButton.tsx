@@ -11,12 +11,12 @@ interface ToggleButtonProps {
 }
 
 function ToggleButton({backgroundColour, activeColour, toggle, setToggle, option1, option2}: ToggleButtonProps ) {
-    return (<div className={`w-full h-12 relative rounded-2xl bg-[${backgroundColour}]`}>
+    return (<div className={`w-full h-10 relative rounded-2xl bg-[${backgroundColour}]`}>
         <button 
             className="w-full h-full absolute cursor-pointer z-50"
             onClick={() => setToggle(!toggle)}
         />
-        <motion.div className={`absolute h-full w-1/2 rounded-2xl bg-[${activeColour}]`} animate={{x: toggle ? "100%" : 0}}/>
+        <motion.div className={`absolute h-full w-1/2 rounded-2xl drop-shadow-2xl bg-[${activeColour}] `} animate={{x: toggle ? "100%" : 0}}/>
         <p className="text-2xl text-white font-sans w-1/2 text-center absolute top-1/2 -translate-y-1/2">{option1}</p>
         <p className="text-2xl text-white font-sans w-1/2 text-center absolute left-1/2 top-1/2 -translate-y-1/2">{option2}</p>
     </div>)

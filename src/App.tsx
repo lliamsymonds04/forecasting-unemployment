@@ -1,5 +1,7 @@
 import { useState } from "react";
 import ModelTuner from "./components/ModelTuner";
+import InfoCard from "./components/InfoCard";
+import LinksCard from "./components/LinksCard";
 // import Footer from "./components/Footer";
 
 
@@ -16,6 +18,8 @@ function App() {
       {/* {graphSrc !== "" && <img src={graphSrc} alt="Graph" className="w-[90%] h-auto mt-8 max-w-[25rem]" />} */}
       <ModelTuner setGraphSrc={setGraphSrc}/>
       {/* <Footer /> */}
+      <InfoCard/>
+      <LinksCard/>
     </div>
   );
 }
