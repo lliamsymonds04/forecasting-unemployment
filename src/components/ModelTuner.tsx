@@ -9,7 +9,7 @@ import { PulseLoader } from "react-spinners";
 const DateRange = ["1991-08-01", "2024-01-01"]
 const MaxForecastMonths = 12;
 
-const BaseURL = "http://127.0.0.1:5000"
+const BaseURL = "https://forecast-unemployment.onrender.com"//"http://127.0.0.1:5000"
 
 function formatDate(date: string): string {
     const parts = date.split("/")
@@ -52,6 +52,7 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
         const blob = await response.blob()
         const imgUrl = URL.createObjectURL(blob)
         setGraphSrc(imgUrl)
+        setIsFetching(false)
     }
 
     async function evaluate() {
@@ -69,6 +70,7 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
         const blob = await response.blob()
         const imgUrl = URL.createObjectURL(blob)
         setGraphSrc(imgUrl)
+        setIsFetching(false)
     }
 
     async function getInterestAndInflation(date: string) {
@@ -141,7 +143,11 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
             <button 
                 className="bg-[#76ABAE] text-[#EEEEEE] font-bold font-sans text-lg mt-10 mb-5 px-4 py-2 rounded-lg hover:bg-[#4A7B7D] focus:outline-none"
                 onClick={() => {
+                    if (isFetching) {
+                        return
+                    }
                     setIsFetching(true)
+                    console.log("Running model")
                     
                     try {
                         if (predictMode) {
@@ -149,10 +155,9 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
                         } else {
                             evaluate();
                         }
+
                     } catch (error) {
                         console.error("Error fetching data:", error);
-                    } finally {
-                        setIsFetching(false)
                     }
                     
                 }}
