@@ -1,30 +1,22 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { SingleSlider, DoubleSlider } from "./Sliders";
 import interpolateDateRange from "../utils/InterpolateDateRange";
 import NumbersInput from "./NumberInput";
 import ToggleButton from "./ToggleButton";
 import { PulseLoader } from "react-spinners";
+import { getInterestAndInflation, forecast, evaluate, ForecastResult, EvaluationResult } from "../utils/ModelFunctions";
 
 const DateRange = ["1991-08-01", "2024-01-01"]
 const MaxForecastMonths = 12;
 
-const BaseURL = "https://forecast-unemployment.onrender.com"//"http://127.0.0.1:5000"
 
-function formatDate(date: string): string {
-    const parts = date.split("/")
-    const m = parts[0]
-    let y = parts[1]
-    if (Number(y) > 50) {
-        y = "19" + y
-    } else {
-        y = "20" + y
-    }
-
-    return `${y}-${m}-01`
+type ModelTunerProps = {
+    setForecastData: React.Dispatch<React.SetStateAction<ForecastResult | null>>,
+    setEvaluationData: React.Dispatch<React.SetStateAction<EvaluationResult | null>>
 }
 
-function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAction<string>>}) {
+function ModelTuner({setForecastData, setEvaluationData}: ModelTunerProps) {
     const [startDate, setStartDate] = useState<string>(interpolateDateRange(DateRange[0], DateRange[1], 0));
     const [endDate, setEndDate] = useState<string>(interpolateDateRange(DateRange[0], DateRange[1], 1));
     const [modelInterestRate, setModelInterestRate] = useState<string>("5");
@@ -37,56 +29,30 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
     const [forecastMonths, setForecastMonths] = useState<number>(MaxForecastMonths * 0.5);
     const [isFetching, setIsFetching] = useState<boolean>(false);
 
-    async function forecast() {
-        //convert the dates
-        const s = formatDate(startDate);
-        const e = formatDate(endDate);
-        const url = `${BaseURL}/api/forecast_unemployment?start=${s}&end=${e}&forecast_months=${forecastMonths}&interest_rate=${modelInterestRate}&inflation_rate=${modelInflationRate}`;
-
-        const response = await fetch(url, {method: "GET"});
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const blob = await response.blob()
-        const imgUrl = URL.createObjectURL(blob)
-        setGraphSrc(imgUrl)
-        setIsFetching(false)
+    async function getInterestAndInflationHelper(date: string) {
+        const data = await getInterestAndInflation(date);
+        setTestInterestRate(data.interest);
+        setTestInflationRate(data.inflation);
     }
 
-    async function evaluate() {
-        //convert the dates
-        const s = formatDate(startDate);
-        const e = formatDate(endDate);
-        const url = `${BaseURL}/api/evaluate_model?start=${s}&end=${e}`;
-
-        const response = await fetch(url, {method: "GET"});
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const blob = await response.blob()
-        const imgUrl = URL.createObjectURL(blob)
-        setGraphSrc(imgUrl)
-        setIsFetching(false)
+    async function forecastHelper() {
+        const data = await forecast(startDate, endDate, forecastMonths, Number(modelInterestRate), Number(modelInflationRate));
+        setForecastData(data);
+        setEvaluationData(null);
+        setIsFetching(false);
     }
 
-    async function getInterestAndInflation(date: string) {
-        const formattedDate = formatDate(date);
-        const url = `${BaseURL}/api/get_interest_and_inflation?date=${formattedDate}`;
-        const response = await fetch(url, {method: "GET"});
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        setTestInflationRate(data["inflation"])
-        setTestInterestRate(data["interest"])
+    async function evaluateHelper() {
+        const data = await evaluate(startDate, endDate);
+        console.log(data)
+        setEvaluationData(data);
+        setForecastData(null);
+        setIsFetching(false);
     }
+
+    useEffect(() => {
+        getInterestAndInflationHelper(endDate);
+    }, [endDate])
     
     return (
         <div className="max-w-[25rem] w-[90%] rounded-2xl bg-[#31363F] h-fit mt-4 p-4 flex flex-col items-center">
@@ -111,7 +77,6 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
                         setStartDate(interpolateDateRange(DateRange[0], DateRange[1], p1));
                         const date2 =interpolateDateRange(DateRange[0], DateRange[1], p2)
                         setEndDate(date2);
-                        getInterestAndInflation(date2)
                     }}
                 />
             </div>
@@ -151,9 +116,9 @@ function ModelTuner({setGraphSrc}: {setGraphSrc: React.Dispatch<React.SetStateAc
                     
                     try {
                         if (predictMode) {
-                            forecast();
+                            forecastHelper();
                         } else {
-                            evaluate();
+                            evaluateHelper();
                         }
 
                     } catch (error) {

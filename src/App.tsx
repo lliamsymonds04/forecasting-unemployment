@@ -1,22 +1,24 @@
 import { useState } from "react";
+
 import ModelTuner from "./components/ModelTuner";
 import InfoCard from "./components/InfoCard";
 import LinksCard from "./components/LinksCard";
-import PingRender from "./components/PingRender";
-
+import { EvaluationResult, ForecastResult } from "./utils/ModelFunctions";
+import Forecast from "./components/graphs/Forecast";
+import Evaluation from "./components/graphs/Evaluation";
 
 function App() {
-  const [graphSrc, setGraphSrc] = useState<string>("");
+  const [forecastData, setForecastData] = useState<ForecastResult | null>(null)
+  const [evaluationData, setEvaluationData] = useState<EvaluationResult | null>(null);
 
   return (
     <div className="w-screen min-h-screen flex flex-col items-center bg-[#222831] relative">
       <p className="text-5xl text-[#EEEEEE] text-center font-bold font-sans mt-8">Unemployment Forecaster</p>
-      <div className="w-90% maw-w-[25rem] rounded-2xl overflow-hidden mt-8">
-        {graphSrc !== "" && <img src={graphSrc} alt="Graph" className="w-fit h-auto" />}
-
+      <div className="w-screen flex flex-col items-center">
+        {forecastData !== null && <Forecast forecastData={forecastData}/>}
+        {evaluationData !== null && <Evaluation evaluationData={evaluationData}/>} 
       </div>
-      <PingRender />
-      <ModelTuner setGraphSrc={setGraphSrc}/>
+      <ModelTuner setForecastData={setForecastData} setEvaluationData={setEvaluationData}/>
       <InfoCard/>
       <LinksCard/>
     </div>
