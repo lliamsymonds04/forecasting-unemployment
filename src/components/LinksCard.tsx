@@ -27,7 +27,7 @@ function LinkButton({imgSrc, link, size = 10, name}: {imgSrc: string, link: stri
 
 function LinksCard() {
     return (
-        <div className="max-w-[15rem] w-[50%] rounded-2xl bg-[#31363F] h-fit mt-4 gap-2 p-2 flex flex-col items-center justify-center">
+        <div className="max-w-[15rem] w-[50%] rounded-2xl bg-[#31363F] h-fit mt-4 gap-2 p-2 flex flex-col items-center justify-center mb-36">
             <p className="font-bold text-white text-2xl">Links</p>
             <div className="flex flex-row items-center justify-center gap-2">
                 {links.map((v, index) => <LinkButton imgSrc={v.imgSrc} link={v.url} name={v.name} key={index} size={10}/>)}
